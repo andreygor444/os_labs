@@ -105,3 +105,8 @@ uptime:
  li a7, SYS_uptime
  ecall
  ret
+.global ps_listinfo
+ps_listinfo:
+ li a7, SYS_ps_listinfo
+ ecall
+ ret

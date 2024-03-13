@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "stddef.h"
 
 struct cpu cpus[NCPU];
 
@@ -680,4 +681,75 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+// function ps_listinfo for task 2
+int ps_listinfo (struct procinfo *plist, int lim) {
+  int nproc = 0;  // number of alive processes
+  struct proc *p;
+  // counting nproc
+  for (p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if (p->state != UNUSED)
+      nproc++;
+    release(&p->lock);
+  }
+  
+  if (plist == NULL)
+    return nproc;
+  if (nproc > lim)
+    return -1;
+
+  static char *states[] = {
+    [UNUSED]    "unused",
+    [USED]      "used",
+    [SLEEPING]  "sleep",
+    [RUNNABLE]  "runble",
+    [RUNNING]   "run",
+    [ZOMBIE]    "zombie"
+  };
+
+  int i = 0;
+  struct proc parent_p, *mp = myproc();
+  struct procinfo pi;
+
+  for (p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state == UNUSED) {
+      release(&p->lock);
+      continue;
+    }
+
+    safestrcpy(pi.name, p->name, sizeof(p->name));
+    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
+      safestrcpy(pi.state, states[p->state], sizeof(states[p->state]));
+    else
+      safestrcpy(pi.state, "???", 3);
+    if (p->parent == 0) {
+      pi.parent_pid = -1;
+    } else {
+      acquire(&wait_lock);
+      memmove(&parent_p, p->parent, sizeof(struct proc));
+      release(&wait_lock);
+      pi.parent_pid = parent_p.pid;
+    }
+    release(&p->lock);
+
+    if (copyout(mp->pagetable, (uint64) (plist + i), (void*) &pi, sizeof(struct procinfo)) < 0) {
+      return -2;
+    }
+
+    i++;
+  }
+  return i;
+}
+
+// syscall wrap for ps_listinfo
+uint64 sys_ps_listinfo(void)
+{
+  struct procinfo *plist;
+  int lim;
+  argaddr(0, (uint64*) &plist);
+  argint(1, &lim);
+  return ps_listinfo(plist, lim);
 }

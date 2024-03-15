@@ -710,7 +710,7 @@ int ps_listinfo (struct procinfo *plist, int lim) {
   };
 
   int i = 0;
-  struct proc parent_p, *mp = myproc();
+  struct proc *mp = myproc();
   struct procinfo pi;
 
   for (p = proc; p < &proc[NPROC]; p++) {
@@ -729,9 +729,10 @@ int ps_listinfo (struct procinfo *plist, int lim) {
       pi.parent_pid = -1;
     } else {
       acquire(&wait_lock);
-      memmove(&parent_p, p->parent, sizeof(struct proc));
+      acquire(&p->parent->lock);
+      pi.parent_pid = p->parent->pid;
+      release(&p->parent->lock);
       release(&wait_lock);
-      pi.parent_pid = parent_p.pid;
     }
     release(&p->lock);
 

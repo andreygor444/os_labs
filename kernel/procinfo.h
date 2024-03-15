@@ -1,6 +1,6 @@
 // struct procinfo for task 1
 struct procinfo {
   char name[16];
-  char state[6];
+  int state;
   int parent_pid;
 };

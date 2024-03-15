@@ -16,7 +16,7 @@ void test_correct() {
    6:	0800                	addi	s0,sp,16
   const int lim = 64;
   struct procinfo *plist = malloc(sizeof(struct procinfo) * lim);
-   8:	70000513          	li	a0,1792
+   8:	60000513          	li	a0,1536
    c:	00000097          	auipc	ra,0x0
   10:	7ce080e7          	jalr	1998(ra) # 7da <malloc>
   int code = ps_listinfo(plist, lim);
@@ -47,7 +47,7 @@ void test_small_buf_size() {
   42:	0800                	addi	s0,sp,16
   const int lim = 2;
   struct procinfo *plist = malloc(sizeof(struct procinfo) * 64);
-  44:	70000513          	li	a0,1792
+  44:	60000513          	li	a0,1536
   48:	00000097          	auipc	ra,0x0
   4c:	792080e7          	jalr	1938(ra) # 7da <malloc>
   int code = ps_listinfo(plist, lim);
@@ -76,7 +76,7 @@ void test_incorrect_buf_size() {
   7c:	0800                	addi	s0,sp,16
   const int lim = -5;
   struct procinfo *plist = malloc(sizeof(struct procinfo) * 64);
-  7e:	70000513          	li	a0,1792
+  7e:	60000513          	li	a0,1536
   82:	00000097          	auipc	ra,0x0
   86:	758080e7          	jalr	1880(ra) # 7da <malloc>
   int code = ps_listinfo(plist, lim);

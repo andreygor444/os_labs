@@ -700,15 +700,6 @@ int ps_listinfo (struct procinfo *plist, int lim) {
   if (nproc > lim)
     return -1;
 
-  static char *states[] = {
-    [UNUSED]    "unused",
-    [USED]      "used",
-    [SLEEPING]  "sleep",
-    [RUNNABLE]  "runble",
-    [RUNNING]   "run",
-    [ZOMBIE]    "zombie"
-  };
-
   int i = 0;
   struct proc *mp = myproc();
   struct procinfo pi;
@@ -721,10 +712,7 @@ int ps_listinfo (struct procinfo *plist, int lim) {
     }
 
     safestrcpy(pi.name, p->name, sizeof(p->name));
-    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
-      safestrcpy(pi.state, states[p->state], sizeof(states[p->state]));
-    else
-      safestrcpy(pi.state, "???", 3);
+    pi.state = p->state;
     if (p->parent == 0) {
       pi.parent_pid = -1;
     } else {

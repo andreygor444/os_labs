@@ -17,10 +17,21 @@ int main(int argc, char *argv[])
   }
   if (code < 0)
     exit(code);
-  
+
+  const int NSTATES = 6;
+  static char *states[] = {
+    "unused", "used", "sleep", "runble", "run", "zombie"
+  };
+
   struct procinfo *p;
-  for (p = plist; p < plist + code; p++)
-    printf("name: %s\tstate: %s\tparent pid: %d\n", p->name, p->state, p->parent_pid);
+  char state[6];
+  for (p = plist; p < plist + code; p++) {
+    if(p->state >= 0 && p->state < NSTATES && states[p->state])
+      strcpy(state, states[p->state]);
+    else
+      strcpy(state, "???");
+    printf("name: %s\tstate: %s\tparent pid: %d\n", p->name, state, p->parent_pid);
+  }
   free(plist);
   exit(0);
 }

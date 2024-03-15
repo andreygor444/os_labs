@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
     free(plist);
     lim *= 2;
   }
+  if (code < 0)
+    exit(code);
   
   struct procinfo *p;
   for (p = plist; p < plist + code; p++)
